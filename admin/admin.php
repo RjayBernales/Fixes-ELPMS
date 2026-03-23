@@ -17,10 +17,10 @@ $allUsers = $pdo->query(
 )->fetchAll();
 
 $activityLog = $pdo->query(
-    "SELECT al.*, u.name AS actor_name
+    "SELECT al.*, u.name AS actor_name, u.role AS actor_role
      FROM activity_log al
      JOIN users u ON u.id = al.user_id
-     ORDER BY al.created_at DESC LIMIT 50"
+     ORDER BY al.created_at DESC LIMIT 200"
 )->fetchAll();
 
 $recentUsers = array_slice($allUsers, 0, 5);
@@ -64,6 +64,10 @@ function timeAgo(string $dt): string {
                 Users Management
             </button>
             <div class="nav-section-lbl" style="margin-top:8px;">System</div>
+            <button class="nav-item" data-section="activity">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1H5zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zM5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1H5zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1H5z"/><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/></svg>
+                Activity Log
+            </button>
             <button class="nav-item" data-section="settings">
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492z"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z"/></svg>
                 System Settings
@@ -116,17 +120,25 @@ function timeAgo(string $dt): string {
                         </div>
                     </div>
                     <div class="card-panel">
-                        <div class="card-head"><h3>Manager Activity</h3><span class="badge" style="background:rgba(13,110,253,0.12);color:#60a5fa;border:1px solid rgba(13,110,253,0.3);"><?= count($activityLog) ?> events</span></div>
+                        <div class="card-head"><h3>Recent Activity</h3><button class="btn btn-ghost btn-sm" onclick="navigate('activity')">View All</button></div>
                         <div class="card-body">
                             <?php if (!$activityLog): ?>
-                                <div class="panel-empty-state"><div class="panel-empty-icon">📋</div><p>No manager activity yet</p></div>
+                                <div class="panel-empty-state"><div class="panel-empty-icon">📋</div><p>No activity yet</p></div>
                             <?php else: foreach (array_slice($activityLog,0,10) as $e):
-                                $dotClass = match($e['action'] ?? '') { 'approved_request','added_building','edited_building' => 'approved', 'denied_request','deleted_building' => 'denied', default => 'info' };
+                                $dotClass = match($e['action'] ?? '') {
+                                    'approved_request','added_building','added_user' => 'approved',
+                                    'denied_request','deleted_building','deleted_user','permanent_deleted_request' => 'denied',
+                                    default => 'info'
+                                };
                             ?>
                             <div class="activity-item">
                                 <div class="activity-dot <?= $dotClass ?>"></div>
                                 <div>
-                                    <div class="activity-text"><strong><?= htmlspecialchars($e['actor_name']) ?></strong> — <?= htmlspecialchars($e['detail'] ?? '') ?></div>
+                                    <div class="activity-text">
+                                        <strong><?= htmlspecialchars($e['actor_name']) ?></strong>
+                                        <span class="badge <?= $e['actor_role'] ?>" style="font-size:0.65rem;padding:1px 6px;margin:0 4px;"><?= ucfirst($e['actor_role']) ?></span>
+                                        — <?= htmlspecialchars($e['detail'] ?? '') ?>
+                                    </div>
                                     <div class="activity-time"><?= timeAgo($e['created_at']) ?></div>
                                 </div>
                             </div>
@@ -165,6 +177,69 @@ function timeAgo(string $dt): string {
                             <?php endforeach; ?>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Log section -->
+            <div class="section" id="section-activity">
+                <div class="card-panel">
+                    <div class="card-head">
+                        <h3>Activity Log</h3>
+                        <div class="card-head-actions">
+                            <select id="log-role-filter" class="panel-filter-select" onchange="filterActivityLog()">
+                                <option value="all">All Roles</option>
+                                <option value="user">Users Only</option>
+                                <option value="manager">Managers Only</option>
+                                <option value="admin">Admin Only</option>
+                            </select>
+                            <select id="log-type-filter" class="panel-filter-select" onchange="filterActivityLog()">
+                                <option value="all">All Actions</option>
+                                <option value="request">Requests</option>
+                                <option value="building">Buildings</option>
+                                <option value="user">Accounts</option>
+                                <option value="system">System</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Time</th><th>Actor</th><th>Role</th><th>Action</th><th>Detail</th></tr></thead>
+                            <tbody id="activity-tbody">
+                            <?php foreach ($activityLog as $e):
+                                $actionGroup = match(true) {
+                                    str_contains($e['action'], 'request')      => 'request',
+                                    str_contains($e['action'], 'building')     => 'building',
+                                    str_contains($e['action'], 'user') || str_contains($e['action'], 'role') => 'user',
+                                    default                                    => 'system'
+                                };
+                                $dotClass = match($e['action'] ?? '') {
+                                    'approved_request','added_building','added_user','restored_request' => 'approved',
+                                    'denied_request','deleted_building','deleted_user','permanent_deleted_request','cleared_requests','cleared_notifications' => 'denied',
+                                    default => 'info'
+                                };
+                                $actionLabel = ucwords(str_replace('_', ' ', $e['action']));
+                            ?>
+                            <tr data-role="<?= $e['actor_role'] ?>" data-type="<?= $actionGroup ?>">
+                                <td style="white-space:nowrap;color:var(--muted);font-size:0.8rem;">
+                                    <?= date('M d, H:i', strtotime($e['created_at'])) ?>
+                                </td>
+                                <td><strong><?= htmlspecialchars($e['actor_name']) ?></strong></td>
+                                <td><span class="badge <?= $e['actor_role'] ?>"><?= ucfirst($e['actor_role']) ?></span></td>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:6px;">
+                                        <div class="activity-dot <?= $dotClass ?>" style="flex-shrink:0;"></div>
+                                        <span style="font-size:0.8rem;"><?= htmlspecialchars($actionLabel) ?></span>
+                                    </div>
+                                </td>
+                                <td style="color:var(--muted);font-size:0.82rem;"><?= htmlspecialchars($e['detail'] ?? '') ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <?php if (!$activityLog): ?>
+                            <div class="panel-empty-state"><div class="panel-empty-icon">📋</div><p>No activity recorded yet</p></div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
