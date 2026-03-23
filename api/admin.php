@@ -92,6 +92,8 @@ if ($method === 'POST') {
             "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)"
         )->execute([$name, $email, $hash, $role]);
 
+        logActivity($pdo, 'added_user', "Created account for \"$name\" ($email) with role: $role");
+
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
         exit;
     }
@@ -105,6 +107,13 @@ if ($method === 'POST') {
             exit;
         }
         $pdo->prepare("UPDATE users SET role = ? WHERE id = ? AND role != 'admin'")->execute([$role, $id]);
+
+        $changed = $pdo->prepare("SELECT name FROM users WHERE id = ?");
+        $changed->execute([$id]);
+        $changedUser = $changed->fetch();
+        $uname = $changedUser['name'] ?? "User #$id";
+        logActivity($pdo, 'changed_role', "Changed role of \"$uname\" to $role");
+
         echo json_encode(['success' => true]);
         exit;
     }
@@ -112,19 +121,33 @@ if ($method === 'POST') {
     if ($action === 'delete_user') {
         $id = (int)($body['id'] ?? 0);
         if (!$id) { http_response_code(400); echo json_encode(['success' => false, 'message' => 'id required']); exit; }
+
+        $target = $pdo->prepare("SELECT name, email, role FROM users WHERE id = ?");
+        $target->execute([$id]);
+        $targetUser = $target->fetch();
+
         $pdo->prepare("DELETE FROM users WHERE id = ? AND role != 'admin'")->execute([$id]);
+
+        if ($targetUser) {
+            logActivity($pdo, 'deleted_user', "Deleted account \"{$targetUser['name']}\" ({$targetUser['email']}, role: {$targetUser['role']})");
+        }
+
         echo json_encode(['success' => true]);
         exit;
     }
 
     if ($action === 'clear_requests') {
+        $count = (int)$pdo->query("SELECT COUNT(*) FROM data_requests WHERE deleted = 1")->fetchColumn();
         $pdo->query("DELETE FROM data_requests WHERE deleted = 1");
+        logActivity($pdo, 'cleared_requests', "Permanently deleted $count soft-deleted request(s) from the recycle bin");
         echo json_encode(['success' => true]);
         exit;
     }
 
     if ($action === 'clear_notifications') {
+        $count = (int)$pdo->query("SELECT COUNT(*) FROM notifications")->fetchColumn();
         $pdo->query("DELETE FROM notifications");
+        logActivity($pdo, 'cleared_notifications', "Cleared all notifications ($count total)");
         echo json_encode(['success' => true]);
         exit;
     }
@@ -146,6 +169,7 @@ if ($method === 'POST') {
         foreach ($defaults as $d) {
             $ins->execute($d);
         }
+        logActivity($pdo, 'reset_buildings', "Reset all campus buildings to the default configuration (7 buildings)");
         echo json_encode(['success' => true]);
         exit;
     }
