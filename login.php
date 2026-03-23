@@ -36,6 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['role']       = $user['role'];
 
+            logActivity($pdo, 'login', "Logged in as {$user['role']}");
+
             $dest = match($user['role']) {
                 'admin'   => url('admin/admin.php'),
                 'manager' => url('manager/manager.php'),
@@ -45,6 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             exit;
         } else {
             $errors[] = 'Invalid email or password.';
+            // Log failed attempt if the email exists (wrong password)
+            if ($user) {
+                $_SESSION['user_id'] = $user['id'];
+                logActivity($pdo, 'failed_login', "Failed login attempt for {$user['email']}");
+                unset($_SESSION['user_id']);
+            }
         }
     }
     $tab = 'login';
@@ -77,6 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 "INSERT INTO users (name, email, password, org, role) VALUES (?, ?, ?, ?, 'user')"
             );
             $ins->execute([$name, $email, $hash, $org]);
+            $newUserId = $pdo->lastInsertId();
+            $_SESSION['user_id'] = $newUserId;
+            logActivity($pdo, 'registered', "New account registered: $name ($email)");
+            unset($_SESSION['user_id']);
             $success = 'Account created! You can now log in.';
             $tab = 'login';
         }
