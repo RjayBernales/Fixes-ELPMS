@@ -298,6 +298,19 @@ function timeAgo(string $dt): string {
     </div>
 </div>
 
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detail-modal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>Action Detail</h3>
+            <button class="modal-close" onclick="document.getElementById('detail-modal').classList.remove('open')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p id="detail-modal-text" style="font-size:0.9rem;line-height:1.6;word-break:break-word;"></p>
+        </div>
+    </div>
+</div>
+
 <script>
 window.BASE_URL = "<?= url('') ?>";
 </script>
