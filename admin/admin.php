@@ -239,6 +239,9 @@ function timeAgo(string $dt): string {
                                     <span style="color:var(--muted);font-size:0.8rem;">—</span>
                                     <?php endif; ?>
                                 </td>
+                                <td style="font-size:0.78rem;color:var(--muted);word-break:break-all;">
+                                    <?= htmlspecialchars($e['page'] ?? '—') ?>
+                                </td>
                             <?php endforeach; ?>
                             </tbody>
                         </table>
