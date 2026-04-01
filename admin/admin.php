@@ -242,6 +242,9 @@ function timeAgo(string $dt): string {
                                 <td style="font-size:0.78rem;color:var(--muted);word-break:break-all;">
                                     <?= htmlspecialchars($e['page'] ?? '—') ?>
                                 </td>
+                                <td style="font-size:0.78rem;color:var(--muted);">
+                                    <?= htmlspecialchars($e['ip_address'] ?? '—') ?>
+                                </td>
                             <?php endforeach; ?>
                             </tbody>
                         </table>
