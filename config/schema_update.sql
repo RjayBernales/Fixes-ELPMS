@@ -9,3 +9,6 @@ ALTER TABLE data_requests
 
 ALTER TABLE activity_log
     ADD COLUMN page VARCHAR(255) DEFAULT NULL AFTER detail;
+
+ALTER TABLE activity_log
+    ADD COLUMN ip_address VARCHAR(45) DEFAULT NULL AFTER page;
