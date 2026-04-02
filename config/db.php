@@ -66,9 +66,10 @@ function logActivity(PDO $pdo, string $action, string $detail): void {
     if (!$userId) return;
     $page    = $_SERVER['HTTP_REFERER'] ?? ($_SERVER['REQUEST_URI'] ?? null);
     $ip      = getUserIpAddr();
+    $browser = get_browser_name($_SERVER['HTTP_USER_AGENT'] ?? '');
     try {
         $pdo->prepare(
-            "INSERT INTO activity_log (user_id, action, detail, page, ip_address,) VALUES (?, ?, ?, ?, ?)"
+            "INSERT INTO activity_log (user_id, action, detail, page, ip_address, browser) VALUES (?, ?, ?, ?, ?, ?)"
         )->execute([$userId, $action, $detail, $page, $ip, $browser]);
     } catch (Throwable $e) {}
 }
