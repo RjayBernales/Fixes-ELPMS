@@ -49,11 +49,14 @@ function getUserIpAddr() {
 // Detects browser name from User-Agent string.
 // Source: php.net/manual/en/function.get-browser.php 
 function get_browser_name($user_agent) {
+//from brave github repo to detect the brave atempting to fix issue
+    $clientHints = $_SERVER['HTTP_SEC_CH_UA'] ?? '';
+    if (strpos($clientHints, 'Brave') !== false) return 'Brave';
+
     if (strpos($user_agent, 'Opera') || strpos($user_agent, 'OPR/')) return 'Opera';
     elseif (strpos($user_agent, 'Edg'))     return 'Edge';
     elseif (strpos($user_agent, 'Chrome'))  return 'Chrome';
     elseif (strpos($user_agent, 'Safari'))  return 'Safari';
-    elseif (strpos($user_agent, 'Brave'))  return 'Brave';
     elseif (strpos($user_agent, 'Firefox')) return 'Firefox';
     elseif (strpos($user_agent, 'MSIE') || strpos($user_agent, 'Trident/7')) return 'Internet Explorer';
     return 'Other';
