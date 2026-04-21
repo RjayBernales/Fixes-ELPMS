@@ -160,7 +160,7 @@ $pendingRequests = $pdo->query(
                 <!-- Row 2: Request status + Users by role -->
                 <div class="dash-grid" style="margin-bottom:16px;">
                     <div class="card-panel">
-                        <div class="card-head"><h3>Requests by Status</h3></div>
+                        <div class="card-head"><h3>Requests by Status</h3><div class="card-head-actions"><span class="text-muted" style="font-size:0.8rem;">Request overview</span></div></div>
                         <div class="card-body" style="padding:16px;height:220px;display:flex;justify-content:center;">
                             <canvas id="chart-requests"></canvas>
                         </div>
