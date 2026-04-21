@@ -134,12 +134,24 @@ $pendingRequests = $pdo->query(
                 <div class="stat-card"><div class="stat-icon clr-red"><svg width="20" height="20" fill="#ef4444" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg></div><div><div class="stat-num"><?= $pending ?></div><div class="stat-lbl">Pending Requests</div></div></div>
             </div>
 
+            <!-- Settings section -->
+            <div class="section" id="section-settings">
+                <div class="card-panel">
+                    <div class="card-head"><h3>System Settings</h3><div class="card-head-actions"><span class="text-muted" style="font-size:0.8rem;">System administration</span></div></div>
+                    <div class="settings-grid">
+                        <div class="setting-item"><div class="setting-info"><h4>Clear All Requests</h4><p>Permanently delete all soft-deleted requests from the recycle bin. Cannot be undone.</p></div><button class="btn btn-danger btn-sm" onclick="clearRequests()" title="Permanently delete all soft-deleted requests">Clear</button></div>
+                        <div class="setting-item"><div class="setting-info"><h4>Clear Notifications</h4><p>Remove all user notifications stored in the system.</p></div><button class="btn btn-warn btn-sm" onclick="clearNotifications()" title="Remove all user notifications">Clear</button></div>
+                        <div class="setting-item"><div class="setting-info"><h4>Reset Buildings to Default</h4><p>Restore the campus buildings list back to the original default configuration.</p></div><button class="btn btn-warn btn-sm" onclick="resetBuildings()" title="Restore campus buildings to default configuration">Reset</button></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Dashboard section -->
             <div class="section active" id="section-dashboard">
 
                 <!-- Row 1: Activity line chart — full width primary trend -->
                 <div class="card-panel" style="margin-bottom:16px;">
-                    <div class="card-head"><h3>System Activity — Last 7 Days</h3></div>
+                    <div class="card-head"><h3>System Activity — Last 7 Days</h3><div class="card-head-actions"><span class="text-muted" style="font-size:0.8rem;">Activity overview</span></div></div>
                     <div class="card-body" style="padding:16px;height:200px;">
                         <canvas id="chart-activity"></canvas>
                     </div>
@@ -148,7 +160,7 @@ $pendingRequests = $pdo->query(
                 <!-- Row 2: Request status + Users by role -->
                 <div class="dash-grid" style="margin-bottom:16px;">
                     <div class="card-panel">
-                        <div class="card-head"><h3>Requests by Status</h3></div>
+                        <div class="card-head"><h3>Requests by Status</h3><div class="card-head-actions"><span class="text-muted" style="font-size:0.8rem;">Request overview</span></div></div>
                         <div class="card-body" style="padding:16px;height:220px;display:flex;justify-content:center;">
                             <canvas id="chart-requests"></canvas>
                         </div>
@@ -241,7 +253,7 @@ $pendingRequests = $pdo->query(
                                 <option value="user">Accounts</option>
                                 <option value="system">System</option>
                             </select>
-                            <button class="btn btn-ghost btn-sm" onclick="downloadActivityCSV()">Export CSV</button>
+                            <button class="btn btn-success btn-sm" onclick="downloadActivityCSV()">Export CSV</button>
                         </div>
                     </div>
                     <div style="padding:0 4px;">
@@ -296,18 +308,6 @@ $pendingRequests = $pdo->query(
                         <?php if (!$activityLog): ?>
                             <div class="panel-empty-state"><div class="panel-empty-icon">📋</div><p>No activity recorded yet</p></div>
                         <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings section -->
-            <div class="section" id="section-settings">
-                <div class="card-panel">
-                    <div class="card-head"><h3>System Settings</h3></div>
-                    <div class="settings-grid">
-                        <div class="setting-item"><div class="setting-info"><h4>Clear All Requests</h4><p>Permanently delete all soft-deleted requests from the recycle bin. Cannot be undone.</p></div><button class="btn btn-danger btn-sm" onclick="clearRequests()">Clear</button></div>
-                        <div class="setting-item"><div class="setting-info"><h4>Clear Notifications</h4><p>Remove all user notifications stored in the system.</p></div><button class="btn btn-warn btn-sm" onclick="clearNotifications()">Clear</button></div>
-                        <div class="setting-item"><div class="setting-info"><h4>Reset Buildings to Default</h4><p>Restore the campus buildings list back to the original default configuration.</p></div><button class="btn btn-warn btn-sm" onclick="resetBuildings()">Reset</button></div>
                     </div>
                 </div>
             </div>
