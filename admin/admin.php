@@ -151,7 +151,7 @@ $pendingRequests = $pdo->query(
 
                 <!-- Row 1: Activity line chart — full width primary trend -->
                 <div class="card-panel" style="margin-bottom:16px;">
-                    <div class="card-head"><h3>System Activity — Last 7 Days</h3></div>
+                    <div class="card-head"><h3>System Activity — Last 7 Days</h3><div class="card-head-actions"><span class="text-muted" style="font-size:0.8rem;">Activity overview</span></div></div>
                     <div class="card-body" style="padding:16px;height:200px;">
                         <canvas id="chart-activity"></canvas>
                     </div>
