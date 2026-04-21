@@ -139,7 +139,7 @@ $pendingRequests = $pdo->query(
                 <div class="card-panel">
                     <div class="card-head"><h3>System Settings</h3></div>
                     <div class="settings-grid">
-                        <div class="setting-item"><div class="setting-info"><h4>Clear All Requests</h4><p>Permanently delete all soft-deleted requests from the recycle bin. Cannot be undone.</p></div><button class="btn btn-danger btn-sm" onclick="clearRequests()">Clear</button></div>
+                        <div class="setting-item"><div class="setting-info"><h4>Clear All Requests</h4><p>Permanently delete all soft-deleted requests from the recycle bin. Cannot be undone.</p></div><button class="btn btn-danger btn-sm" onclick="clearRequests()" title="Permanently delete all soft-deleted requests">Clear</button></div>
                         <div class="setting-item"><div class="setting-info"><h4>Clear Notifications</h4><p>Remove all user notifications stored in the system.</p></div><button class="btn btn-warn btn-sm" onclick="clearNotifications()">Clear</button></div>
                         <div class="setting-item"><div class="setting-info"><h4>Reset Buildings to Default</h4><p>Restore the campus buildings list back to the original default configuration.</p></div><button class="btn btn-warn btn-sm" onclick="resetBuildings()">Reset</button></div>
                     </div>
